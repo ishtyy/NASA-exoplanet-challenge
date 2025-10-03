@@ -23,42 +23,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function evaluatePlanet() {
-        const starName = planetIdInput.value.trim();
-        if (!starName) {
-            showError("Please enter a star name to evaluate.");
-            return;
-        }
+    const starName = planetIdInput.value.trim();
+    if (!starName) {
+        showError("Please enter a star name to evaluate.");
+        return;
+    }
 
-        btnText.classList.add('hidden');
-        btnLoader.classList.remove('hidden');
-        resultsContainer.innerHTML = `<div class="text-center p-8"><p class="text-lg text-gray-400">Searching archive for ${starName}, please wait...</p></div>`;
-        resultsContainer.classList.remove('hidden');
+    btnText.classList.add('hidden');
+    btnLoader.classList.remove('hidden');
+    resultsContainer.innerHTML = `<div class="text-center p-8"><p class="text-lg text-gray-400">Searching archive for ${starName}, please wait...</p></div>`;
+    resultsContainer.classList.remove('hidden');
+
+    try {
+        const response = await fetch('/predict', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ star_name: starName }) 
+        });
+
+        const text = await response.text(); // always read as text first
+        let data;
 
         try {
-            const response = await fetch('/predict', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ star_name: starName }) 
-            });
-
-            let data;
-            try {
-                data = await response.json();
-            } catch (e) {
-                // Backend returned HTML instead of JSON
-                const text = await response.text();
-                throw new Error(`Server returned non-JSON response: ${text.substring(0, 200)}...`);
-            }
-
-            if (!response.ok) throw new Error(data.error || 'Prediction failed.');
-            displayResults(data);
-        } catch (error) {
-            showError(error.message);
-        } finally {
-            btnText.classList.remove('hidden');
-            btnLoader.classList.add('hidden');
+            data = JSON.parse(text); // try parsing JSON
+        } catch (e) {
+            throw new Error(`Server returned non-JSON response: ${text.substring(0, 200)}...`);
         }
+
+        if (!response.ok) throw new Error(data.error || 'Prediction failed.');
+        displayResults(data);
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        btnText.classList.remove('hidden');
+        btnLoader.classList.add('hidden');
     }
+}
+
 
     function showError(message) {
         resultsContainer.innerHTML = `
