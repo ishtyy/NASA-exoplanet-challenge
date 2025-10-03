@@ -13,3 +13,4 @@ seaborn
 flask
 notebook
 ipywidgets
+gunicorn
