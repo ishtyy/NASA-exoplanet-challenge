@@ -1,0 +1,16 @@
+pandas
+numpy
+scikit-learn
+lightkurve
+tsfresh
+xgboost
+lightgbm
+catboost
+optuna
+joblib
+matplotlib
+seaborn
+flask
+notebook
+ipywidgets
+gunicorn
